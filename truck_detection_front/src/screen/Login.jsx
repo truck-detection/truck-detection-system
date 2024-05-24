@@ -114,7 +114,7 @@ const Login = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="UserId"
+              placeholder="ID"
               value={id}
               onChange={(e) => setId(e.target.value)}
             />
@@ -131,7 +131,7 @@ const Login = () => {
             }}
           >
             <input
-              type="password"
+              type="Password"
               style={{
                 width: "calc(100% - 40px)",
                 height: "36px",
@@ -140,7 +140,7 @@ const Login = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="password"
+              placeholder="Password"
               value={pw}
               onChange={(e) => setPw(e.target.value)}
             />

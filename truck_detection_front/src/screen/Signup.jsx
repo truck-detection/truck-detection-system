@@ -123,7 +123,7 @@ const Signup = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="UserId"
+              placeholder="ID"
               value={id}
               onChange={(e) => setId(e.target.value)}
             />
@@ -149,7 +149,7 @@ const Signup = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="password"
+              placeholder="Password"
               value={pw1}
               onChange={(e) => setPw1(e.target.value)}
             />
@@ -175,7 +175,7 @@ const Signup = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="checkPw"
+              placeholder="Confirm Password"
               value={pw2}
               onChange={(e) => setPw2(e.target.value)}
             />
@@ -227,7 +227,7 @@ const Signup = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="E-mail"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -258,7 +258,7 @@ const Signup = () => {
             className="loginBtn"
             onClick={handleSubmit}
           >
-            이메일 인증
+            Verify your email
           </button>
         </div>
       </div>

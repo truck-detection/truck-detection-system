@@ -5,17 +5,18 @@ from flask_login import LoginManager
 import os
 from flask_cors import CORS
 
-
 build_dir = os.path.join('..', 'truck_detection_front', 'build')
 
 login_manager = LoginManager()
 mail = Mail()
+UPLOAD_FOLDER = 'uploads'
 
 def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates/build', static_folder=build_dir)
     CORS(app)
     app.config.from_pyfile('config.py')
     app.config['SECRET_KEY'] = 'abcdef'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     mail.init_app(app)
 

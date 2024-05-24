@@ -3,12 +3,18 @@ from sqlalchemy import text
 from flask_login import login_user, logout_user, login_required, UserMixin, current_user
 from flask_mail import Message
 from truck_detection_back import login_manager, mail, build_dir
+from werkzeug.utils import secure_filename
 import secrets, string, os
 
 # 블루프린트 생성
 user_routes = Blueprint('user_routes', __name__, template_folder=build_dir, static_folder='templates/build/static')
 
 #index_html_path = os.path.join(build_dir, 'index.html')
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class User(UserMixin):
         def __init__(self, user_id, name, email):
@@ -152,6 +158,14 @@ def login():
         return jsonify({"message": "Login successful"}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+# 로그인 상태 확인
+@user_routes.route('/user/check-login', methods=['GET'])
+def check_login():
+    if current_user.is_authenticated:
+        return jsonify({"message": "User is logged in"}), 200
+    else:
+        return jsonify({"message": "User is not logged in"}), 401
     
 @user_routes.route('/user/logout', methods=['GET'])
 @login_required # 로그인 중에만 사용 가능
@@ -211,3 +225,21 @@ def reset_password():
     conn.close()
     
     return jsonify({"message": "Temporary password has been sent to your email"}), 200
+
+# 파일 업로드 엔드포인트
+@user_routes.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"message": "No file part"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"message": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        return jsonify({"message": "File successfully uploaded"}), 200
+
+    return jsonify({"message": "File type not allowed"}), 400

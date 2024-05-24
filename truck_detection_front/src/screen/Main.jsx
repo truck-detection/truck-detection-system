@@ -1,13 +1,36 @@
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Main = () => {
-
   const navigate = useNavigate();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
-  const Logout = async(e) => {
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const response = await fetch("/user/check-login", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          navigate("/user/login");
+        }
+      } catch (error) {
+        console.error("Error during login check:", error);
+        navigate("/user/login");
+      }
+    };
+
+    checkLogin();
+  }, [navigate]);
+
+  const Logout = async (e) => {
     e.preventDefault();
-    // 로그아웃 로직 처리
     try {
       const response = await fetch("/user/logout", {
         method: "GET",
@@ -30,6 +53,48 @@ const Main = () => {
       window.alert("로그아웃 중 오류가 발생했습니다.");
     }
   };
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      window.alert("파일을 선택해주세요.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        window.alert("업로드 성공: " + result.message);
+      } else {
+        const errorResult = await response.json();
+        window.alert("업로드 실패: " + errorResult.message);
+      }
+    } catch (error) {
+      console.error("Error during file upload:", error);
+      window.alert("파일 업로드 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleFileButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  useEffect(() => {
+    if (selectedFile) {
+      handleUpload();
+    }
+  }, [selectedFile]);
 
   return (
     <Container
@@ -62,13 +127,13 @@ const Main = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginTop: "24px"
+            marginTop: "24px",
           }}
         >
           <img src="../logo.png" alt="logo" />
           <h1 style={{ margin: "0px", color: "#0A6294" }}>Bad Truck Detection</h1>
         </div>
-        
+
         <div
           style={{
             width: "100%",
@@ -77,9 +142,15 @@ const Main = () => {
             alignItems: "center",
             gap: "30px",
             marginTop: "24px",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
           }}
         >
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
           <button
             style={{
               width: "80%",
@@ -93,6 +164,7 @@ const Main = () => {
               cursor: "pointer",
             }}
             className="Btn"
+            onClick={handleFileButtonClick}
           >
             이미지 업로드
           </button>
@@ -137,13 +209,13 @@ const Main = () => {
             alignItems: "center",
             gap: "30px",
             marginRight: "24px",
-            justifyContent: "end"
+            justifyContent: "end",
           }}
         >
           <button
             style={{
-              width: "30%",
-              height: "44px",
+              width: "80px",
+              height: "24px",
               borderRadius: "24px",
               border: "none",
               outline: "none",
@@ -151,6 +223,7 @@ const Main = () => {
               color: "#ffffff",
               letterSpacing: "4px",
               cursor: "pointer",
+              marginBottom: "20px",
             }}
             className="Btn"
             onClick={Logout}
@@ -163,10 +236,6 @@ const Main = () => {
   );
 };
 
-const Container = styled.div`
-& .Btn:hover {
-  background-color: #1c99db88 !important;
-}
-`;
+const Container = styled.div``;
 
 export default Main;

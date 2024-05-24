@@ -102,7 +102,7 @@ const ForgotUserid = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="E-mail"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

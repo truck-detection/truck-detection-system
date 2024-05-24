@@ -102,7 +102,7 @@ const ForgotPw = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="E-mail"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -128,7 +128,7 @@ const ForgotPw = () => {
                 outline: "none",
                 background: "transparent",
               }}
-              placeholder="UserId"
+              placeholder="ID"
               value={id}
               onChange={(e) => setId(e.target.value)}
             />
