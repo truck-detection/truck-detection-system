@@ -89,6 +89,9 @@ const Main = () => {
   const handleFileButtonClick = () => {
     fileInputRef.current.click();
   };
+  const listHandler = () => {
+    navigate("/list");
+  };
 
   useEffect(() => {
     if (selectedFile) {
@@ -181,6 +184,7 @@ const Main = () => {
               cursor: "pointer",
             }}
             className="Btn"
+            onClick={listHandler}
           >
             적재 불량 트럭 확인
           </button>
@@ -214,8 +218,8 @@ const Main = () => {
         >
           <button
             style={{
-              width: "80px",
-              height: "24px",
+              width: "30%",
+              height: "44px",
               borderRadius: "24px",
               border: "none",
               outline: "none",
@@ -223,7 +227,6 @@ const Main = () => {
               color: "#ffffff",
               letterSpacing: "4px",
               cursor: "pointer",
-              marginBottom: "20px",
             }}
             className="Btn"
             onClick={Logout}

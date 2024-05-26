@@ -6,6 +6,7 @@ import Signup from "./screen/Signup";
 import ForgotUserid from "./screen/ForgotUserid";
 import ForgotPw from "./screen/ForgotPw";
 import Email from "./screen/Email";
+import List from "./screen/List";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/user/find-id" element={<ForgotUserid />} />
         <Route path="/user/reset-password" element={<ForgotPw />} />
         <Route path="/user/confirm-sign-up" element={<Email />} />
+        <Route path="/list" element={<List />} />
       </Routes>
     </BrowserRouter>
   );
