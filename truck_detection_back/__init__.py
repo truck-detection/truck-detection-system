@@ -9,7 +9,7 @@ build_dir = os.path.join('..', 'truck_detection_front', 'build')
 
 login_manager = LoginManager()
 mail = Mail()
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.path.join('uploads')
 
 def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates/build', static_folder=build_dir)

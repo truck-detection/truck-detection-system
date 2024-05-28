@@ -1,16 +1,19 @@
-from flask import Blueprint, request, jsonify, current_app, render_template_string, render_template, session
+import subprocess, sys
+from flask import Blueprint, request, jsonify, current_app, render_template_string, render_template, session, send_from_directory
 from sqlalchemy import text
 from flask_login import login_user, logout_user, login_required, UserMixin, current_user
 from flask_mail import Message
 from truck_detection_back import login_manager, mail, build_dir
 from werkzeug.utils import secure_filename
-import secrets, string, os
+import secrets, string, os, uuid, time
+
 
 # 블루프린트 생성
 user_routes = Blueprint('user_routes', __name__, template_folder=build_dir, static_folder='templates/build/static')
 
 #index_html_path = os.path.join(build_dir, 'index.html')
-UPLOAD_FOLDER = 'uploads'
+
+UPLOAD_FOLDER = os.path.join('uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
@@ -229,6 +232,9 @@ def reset_password():
 # 파일 업로드 엔드포인트
 @user_routes.route('/upload', methods=['POST'])
 def upload_file():
+    if not os.path.exists(current_app.config['UPLOAD_FOLDER']):
+        os.makedirs(current_app.config['UPLOAD_FOLDER'])
+
     if 'file' not in request.files:
         return jsonify({"message": "No file part"}), 400
 
@@ -238,8 +244,56 @@ def upload_file():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file_ext = os.path.splitext(filename)[1]
+        unique_filename = str(uuid.uuid4()) + file_ext
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
         file.save(filepath)
-        return jsonify({"message": "File successfully uploaded"}), 200
+
+        return jsonify({"message": "File successfully uploaded", "filename": unique_filename}), 200
 
     return jsonify({"message": "File type not allowed"}), 400
+
+# 업로드된 파일을 제공
+@user_routes.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+
+# 이미지 리스트 제공
+@user_routes.route('/images', methods=['GET'])
+def get_images():
+    try:
+        files = os.listdir(current_app.config['UPLOAD_FOLDER'])
+        images = [{
+            "filename": file,
+            "filepath": f"/uploads/{file}",
+            "uploadtime": time.ctime(os.path.getctime(os.path.join(current_app.config['UPLOAD_FOLDER'], file)))
+        } for file in files if allowed_file(file)]
+        return jsonify({"images": images}), 200
+    except Exception as e:
+        return jsonify({"message": "Error retrieving images"}), 500
+
+@user_routes.route('/run-detection', methods=['POST'])
+def run_detection():
+    data = request.json
+    detect_script_path = os.path.expanduser('~/ML/BadTruckDetection/Detect/Detect/Detect.py')
+    detect_script_dir = os.path.dirname(detect_script_path)  # Detect.py의 디렉토리 경로
+
+    try:
+        # 서브프로세스로 Detect.py 실행
+        result = subprocess.run(
+            [sys.executable, detect_script_path, '--batch-size', '1'],
+            capture_output=True,
+            text=True,
+            cwd=detect_script_dir
+        )
+
+        if result.returncode != 0:
+            return jsonify({"message": "Error running detection", "error": result.stderr}), 500
+
+        return jsonify({"message": "Detection completed successfully", "output": result.stdout}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error running detection", "error": str(e)}), 500
+
+
+

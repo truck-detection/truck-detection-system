@@ -133,7 +133,7 @@ const Email = () => {
             className="loginBtn"
             onClick={handleSubmit}
           >
-            이메일 인증
+            Verify your email
           </button>
         </div>
       </div>
